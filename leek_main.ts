@@ -70,7 +70,7 @@ function getEnemyRange(): Cell[] {
         return cellArray
     }
     let movementRangeArray = enemyRangeBfs(enemy.maxMP, enemy.cell, [])
-    let attackRangeArray = movementRangeArray
+    let attackRangeArray = movementRangeArray.map(a => {return {...a}})
 
     for (let tile of movementRangeArray) {
         attackRangeArray = enemyRangeBfs(maxEnemyRange, tile, attackRangeArray)
