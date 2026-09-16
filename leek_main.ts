@@ -38,8 +38,10 @@ function getEnemyRange(): Cell[] {
     let eRange = maxEnemyRange + enemy.maxMP
     let cellArray: Cell[] = []
 
+    
+
     //just bfs it
-    function enemyRangeBFS(range: number, currentCell: cell) {
+    function enemyRangeBFS(range: number, currentCell: Cell) {
         //cellarray is the same as visited
         if (range === 0) {
             return
@@ -48,9 +50,15 @@ function getEnemyRange(): Cell[] {
         for (let x = currentCell.x - 1; x < currentCell.x + 1; x++) {
             for (let y = currentCell.y - 1; y < currentCell.y + 1; y++) {
                 let tempCell = Field.cellFromXY(x, y)
+
+                if (tempCell=== null){
+                    continue
+                }
                 if (x === 0 && y === 0) {
                     continue
-                } else if (!cellArray.includes(tempCell) && !tempCell.obstacle) {
+                } else 
+                console.log(tempCell)
+                if (!cellArray.includes(tempCell) && !tempCell.obstacle) {
                     enemyRangeBFS(range - 1, tempCell)
                 }
             }
