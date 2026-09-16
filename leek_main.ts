@@ -25,6 +25,66 @@ for (let weapon of enemy.weapons) {
 
 }
 
+let enemyRangeMemo: Cell [] = null
+function getEnemyRange(): Cell[] {
+    //get ranges for strongest weapon AND lineofsight
+    //future optimization: get ranges for all weapons separately, check if there's enough time to iterate through em all.
+    //or if there's a way to store in memory to better optimize
+    //also maybe refactor range to be added on top of current pos? or like store it somewhere so i dont have to recalc
+
+    if (enemyRangeMemo !== null) {
+        return enemyRangeMemo
+    }
+    let eRange = maxEnemyRange + enemy.maxMP
+    let cellArray: Cell[] = []
+
+    //just bfs it
+    function enemyRangeBFS(range: number, currentCell: cell) {
+        //cellarray is the same as visited
+        if (range === 0) {
+            return
+        }
+        cellArray.push(currentCell)
+        for (let x = currentCell.x - 1; x < currentCell.x + 1; x++) {
+            for (let y = currentCell.y - 1; y < currentCell.y + 1; y++) {
+                let tempCell = Field.cellFromXY(x, y)
+                if (x === 0 && y === 0) {
+                    continue
+                } else if (!cellArray.includes(tempCell) && !tempCell.obstacle) {
+                    enemyRangeBFS(range - 1, tempCell)
+                }
+            }
+        }
+    }
+    enemyRangeBFS(eRange, enemy.cell)
+
+    enemyRangeMemo = cellArray
+    return cellArray
+    
+}
+
+let safeTilesMemo: Cell[] = null
+function getImmediateSafeTilesV2(): Cell[] {
+    //for future improvement: figure out how to get the edge tiles only.
+    if (safeTilesMemo !== null) {
+        return safeTilesMemo
+    }
+    let enemyRange = getEnemyRange()
+    let safeTiles = []
+    for (let tile of enemyRange) {
+        for (let x = tile.x - 1; x < tile.x + 1; x++) {
+            for (let y = tile.y - 1; y < tile.y + 1; y++) {
+                let tempCell = Field.cellFromXY(x, y)
+                if (!enemyRange.includes(tempCell)) {
+                    safeTiles.push(tempCell)
+                }
+            }
+        }
+    }
+    safeTilesMemo = safeTiles
+    return safeTiles
+    
+}
 //todo: implement a star pathfinding and own leek range + maximum damage
 function getImmediateSafeTiles(): Cell[] {
     let eRange = maxEnemyRange + enemy.maxMP
@@ -42,7 +102,7 @@ function getImmediateSafeTiles(): Cell[] {
 
 function getNearestPathToSafety(): Cell[] {
     let safestPath: Cell[] = null
-    let safeTilesArray = getImmediateSafeTiles()
+    let safeTilesArray = getImmediateSafeTilesV2()
     for (let tile of safeTilesArray) {
         let currentPath = me.cell.path(tile)
         console.log(`Current Path: ${currentPath}`)
@@ -57,39 +117,10 @@ function getNearestPathToSafety(): Cell[] {
 
 function isInEnemyRange(): boolean {
 
-    let eRange = maxEnemyRange + enemy.maxMP + 1
-    console.log(`x: ${enemy.cell.x - eRange} to ${enemy.cell.x + eRange}`)
-
-    console.log(`my coords: x @ ${me.cell.x}, y @ ${me.cell.y}`)
-
-    let x_diff = 0
-    let y_diff = 0
-
-    if (me.cell.y < enemy.cell.y + eRange && 
-    me.cell.y > enemy.cell.y - eRange) {
-      y_diff = Math.abs(me.cell.y - enemy.cell.y)
-      x_diff = Math.abs(eRange - y_diff)
-
-      if (me.cell.x < enemy.cell.x + x_diff && me.cell.x > enemy.cell.x - x_diff) {
+    if (getEnemyRange().includes(me.cell)){
         return true
-      }
     }
-
-    if (me.cell.x < enemy.cell.x + eRange &&
-    me.cell.x > enemy.cell.x - eRange) {
-        x_diff = Math.abs(me.cell.x - enemy.cell.x)
-        y_diff = Math.abs(eRange - x_diff)
-
-        console.log(`y: ${ enemy.cell.y - y_diff} to ${enemy.cell.y + y_diff}`)
-
-        if (me.cell.y < enemy.cell.y + y_diff 
-        && me.cell.y > enemy.cell.y - y_diff) {
-
-        return true
-        }
-    }
-
-    return false 
+    return false
 
 }
 
@@ -162,7 +193,7 @@ while (me.mp > 0) {
         me.tp > me.weapon.cost && me.life/me.maxLife > 0.5){
             move_points = me.moveToward(enemy, 1)
         } else {
-            if (!isInEnemyRange()) {
+            if (!isInEnemyRange() && !getImmediateSafeTiles().includes(me.cell)) {
                 move_points = me.moveToward(enemy, 1)
             }
         } 
