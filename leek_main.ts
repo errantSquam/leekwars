@@ -18,6 +18,7 @@ const WIS_MULTIPLIER = (1 + me.wisdom)/100
 const BANDAGE_MAX_HEAL = 28 * WIS_MULTIPLIER
 const BANDAGE_THRESHOLD = BANDAGE_MAX_HEAL * 0.7
 
+//todo: account for CHIPS
 let maxEnemyRange = 0
 for (let weapon of enemy.weapons) {
     maxEnemyRange = Math.max(maxEnemyRange, weapon.maxRange)
