@@ -35,39 +35,52 @@ function getEnemyRange(): Cell[] {
     if (enemyRangeMemo !== null) {
         return enemyRangeMemo
     }
-    let eRange = maxEnemyRange + enemy.maxMP
-    let cellArray: Cell[] = []
-
+    //let eRange = maxEnemyRange + enemy.maxMP
     
 
+    
+    //New problem: Need to BFS for every tile possible. Crying laughing emoji
     //just bfs it
-    function enemyRangeBFS(range: number, currentCell: Cell) {
-        //cellarray is the same as visited
-        if (range === 0) {
-            return
-        }
-        cellArray.push(currentCell)
-        for (let x = currentCell.x - 1; x < currentCell.x + 1; x++) {
-            for (let y = currentCell.y - 1; y < currentCell.y + 1; y++) {
-                let tempCell = Field.cellFromXY(x, y)
-
-                if (tempCell=== null){
-                    continue
-                }
-                if (x === 0 && y === 0) {
-                    continue
-                } else 
-                console.log(tempCell)
-                if (!cellArray.includes(tempCell) && !tempCell.obstacle) {
-                    enemyRangeBFS(range - 1, tempCell)
+    function enemyRangeBfs(range: number, currentCell: Cell, cellArray: Cell[]): Cell[] {
+        
+        function enemyRangeBfsRecursive(range: number, currentCell: Cell) {
+            //cellarray is the same as visited
+            if (range === 0) {
+                return
+            }
+            cellArray.push(currentCell)
+            for (let x = currentCell.x - 1; x < currentCell.x + 1; x++) {
+                for (let y = currentCell.y - 1; y < currentCell.y + 1; y++) {
+                    let tempCell = Field.cellFromXY(x, y)
+    
+                    if (tempCell=== null){
+                        continue
+                    }
+                    if (x === 0 && y === 0) {
+                        continue
+                    } else 
+                    console.log(tempCell)
+                    if (!cellArray.includes(tempCell) && !tempCell.obstacle) {
+                        enemyRangeBfsRecursive(range - 1, tempCell)
+                    }
                 }
             }
         }
+        enemyRangeBfsRecursive(range, currentCell)
+        return cellArray
     }
-    enemyRangeBFS(eRange, enemy.cell)
+    let movementRangeArray = enemyRangeBFS(enemy.maxMP, enemy.cell, [])
+    let attackRangeArray = movementRangeArray
 
-    enemyRangeMemo = cellArray
-    return cellArray
+    for (let tile of movementRangeArray) {
+        attackRangeArray = enemyRangeBFS(maxEnemyRange, tile, attackRangeArray)
+    }
+    
+
+    
+
+    enemyRangeMemo = attackRangeArray
+    return attackRangeArray
     
 }
 
