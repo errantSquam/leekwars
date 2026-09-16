@@ -30,7 +30,7 @@ function getImmediateSafeTiles(): Cell[] {
     let safeOffset = 1
     let cellArray: Cell[] = []
     
-    for (int x = -enemy.maxMp - eRange - safeOffset; x <= enemy.maxMP + eRange + safeOffset; x++) {
+    for (let x = -enemy.maxMP - eRange - safeOffset; x <= enemy.maxMP + eRange + safeOffset; x++) {
         let y = enemy.maxMP - Math.abs(x)
         cellArray.push(Field.cellFromXY(enemy.cell.x + x, enemy.cell.y + y))
         cellArray.push(Field.cellFromXY(enemy.cell.x + x, enemy.cell.y -y))
