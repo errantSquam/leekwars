@@ -69,11 +69,11 @@ function getEnemyRange(): Cell[] {
         enemyRangeBfsRecursive(range, currentCell)
         return cellArray
     }
-    let movementRangeArray = enemyRangeBFS(enemy.maxMP, enemy.cell, [])
+    let movementRangeArray = enemyRangeBfs(enemy.maxMP, enemy.cell, [])
     let attackRangeArray = movementRangeArray
 
     for (let tile of movementRangeArray) {
-        attackRangeArray = enemyRangeBFS(maxEnemyRange, tile, attackRangeArray)
+        attackRangeArray = enemyRangeBfs(maxEnemyRange, tile, attackRangeArray)
     }
     
 
