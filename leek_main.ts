@@ -30,20 +30,22 @@ function getImmediateSafeTiles(): Cell[] {
     let safeOffset = 1
     let cellArray: Cell[] = []
 
-    for (int x = -enemy.maxMp; x <= enemy.maxMP; x++) {
-        let y = enemy.maxMp - Math.abs(x)
-        cellArray.append(Field.cellFromXY(x, y))
-        cellArray.append(Field.cellFromXY(x, -y))
+    for (let x = -enemy.maxMP; x <= enemy.maxMP; x++) {
+        let y = enemy.maxMP - Math.abs(x)
+        cellArray.push(Field.cellFromXY(enemy.cell.x + x, enemy.cell.y + y))
+        cellArray.push(Field.cellFromXY(enemy.cell.x + x, enemy.cell.y -y))
     }
     return cellArray
 }
 
-function getNearestPathToSafety(): Cell {
+function getNearestPathToSafety(): Cell[] {
     let safestPath: Cell[] = null
     let safeTilesArray = getImmediateSafeTiles()
     for (let tile of safeTilesArray) {
         let currentPath = me.cell.path(tile)
-        if (currentPath !== null and (safestPath === null || currentPath.length < safestPath.length)) {
+        console.log(`Current Path: ${currentPath}`)
+        if (currentPath !== null && (safestPath === null || currentPath.length < safestPath.length)) {
+            console.log("Appending")
             safestPath = currentPath
         }
     }
@@ -171,9 +173,10 @@ while (me.mp > 0) {
 if (isInEnemyRange()) {
     console.log("In enemy range!")
     let nearestSafePath = getNearestPathToSafety()
+    console.log(nearestSafePath)
     if (nearestSafePath!==null) {
         for (let tile of nearestSafePath) {
-            me.moveTowardCell(tile)
+            me.moveTowardCells(tile)
         }
     } else {
         me.moveAwayFrom(enemy)
