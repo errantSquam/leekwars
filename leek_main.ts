@@ -25,12 +25,33 @@ for (let weapon of enemy.weapons) {
 }
 
 //todo: implement a star pathfinding and own leek range + maximum damage
+function getImmediateSafeTiles(): Cell[] {
+    let eRange = maxEnemyRange + enemy.maxMP
+    let safeOffset = 1
+    let cellArray: Cell[] = []
+
+    for (int x = -enemy.maxMp; x <= enemy.maxMP; x++) {
+        let y = enemy.maxMp - Math.abs(x)
+        cellArray.append(Field.cellFromXY(x, y))
+        cellArray.append(Field.cellFromXY(x, -y))
+    }
+    return cellArray
+}
+
+function getNearestPathToSafety(): Cell {
+    let safestPath: Cell[] = null
+    let safeTilesArray = getImmediateSafeTiles()
+    for (let tile of safeTilesArray) {
+        let currentPath = me.cell.path(tile)
+        if (currentPath !== null and (safestPath === null || currentPath.length < safestPath.length)) {
+            safestPath = currentPath
+        }
+    }
+    return safestPath
+}
 
 
 function isInEnemyRange(): boolean {
-
-    //return me.distance(enemy.cell) < maxEnemyRange 
-
 
     let eRange = maxEnemyRange + enemy.maxMP + 1
     console.log(`x: ${enemy.cell.x - eRange} to ${enemy.cell.x + eRange}`)
@@ -149,7 +170,14 @@ while (me.mp > 0) {
 }
 if (isInEnemyRange()) {
     console.log("In enemy range!")
-    me.moveAwayFrom(enemy)
+    let nearestSafePath = getNearestPathToSafety()
+    if (nearestSafePath!==null) {
+        for (let tile of nearestSafePath) {
+            me.moveTowardCell(tile)
+        }
+    } else {
+        me.moveAwayFrom(enemy)
+    }
 }
 
 
