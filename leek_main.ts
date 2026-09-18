@@ -85,7 +85,7 @@ function rangeBfs(range: number, currentCell: Cell, cellArray: Cell[]): Cell[] {
                     if (x === 0 && y === 0) {
                         continue
                     } else 
-                    console.log(tempCell)
+                    //console.log(tempCell)
                     if (!cellArray.includes(tempCell) && !tempCell.obstacle) {
                         rangeBfsRecursive(range - 1, tempCell)
                     }
@@ -170,9 +170,9 @@ function getNearestPathToSafety(): Cell[] {
     let safeTilesArray = getImmediateSafeTilesV2()
     for (let tile of safeTilesArray) {
         let currentPath = me.cell.path(tile)
-        console.log(`Current Path: ${currentPath}`)
+        //console.log(`Current Path: ${currentPath}`)
         if (currentPath !== null && (safestPath === null || currentPath.length < safestPath.length)) {
-            console.log("Appending")
+            //console.log("Appending")
             safestPath = currentPath
         }
     }
@@ -231,6 +231,7 @@ function getStrongestAvailableWeapon(): Weapon {
 
 let bandageUses = 1
 let bestOffensiveTile = getBestTileToMoveTo()
+console.log(`Best offensive tile to move to: ${bestOffensiveTile}`)
 
 while (me.mp > 0) {
     console.log("Looping")
