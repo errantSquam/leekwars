@@ -42,7 +42,8 @@ function getBestTileToMoveTo(): Cell {
 
     for (let tile of movementRangeArray) {
         let moveDistance = me.cell.pathLength(tile)
-        let enemyDistance = Field.getDistance(tile, enemy.cell)
+        let enemyDistance = Field.euclideanDistance(tile, enemy.cell)
+        
         let currentWeight = 0
         //later check if this is less than bestmovementrange if weight is tied
         if (moveDistance > me.mp) {
