@@ -21,6 +21,9 @@ const BANDAGE_THRESHOLD = BANDAGE_MAX_HEAL * 0.7
 //todo: account for CHIPS
 let maxEnemyRange = 0
 for (let weapon of enemy.weapons) {
+    if (weapon === null) {
+        continue;
+    }
     maxEnemyRange = Math.max(maxEnemyRange, weapon.maxRange)
 
 }
