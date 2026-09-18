@@ -266,7 +266,7 @@ while (me.mp > 0) {
         me.tp > me.weapon.cost && me.life/me.maxLife > 0.5
            ){
             move_points = me.moveTowardCells([bestOffensiveTile], 1)
-        } else if (!isInEnemyRange() && !getImmediateSafeTiles().includes(me.cell)) {
+        } else if (!isInEnemyRange() && !getImmediateSafeTilesV2().includes(me.cell)) {
                 console.log("Out of enemy range and moving further in")
                 move_points = me.moveToward(enemy, 1)
         } else {
