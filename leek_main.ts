@@ -28,25 +28,47 @@ for (let weapon of enemy.weapons) {
 
 }
 
-let enemyRangeMemo: Cell [] = null
-function getEnemyRange(): Cell[] {
-    //get ranges for strongest weapon AND lineofsight
-    //future optimization: get ranges for all weapons separately, check if there's enough time to iterate through em all.
-    //or if there's a way to store in memory to better optimize
-    //also maybe refactor range to be added on top of current pos? or like store it somewhere so i dont have to recalc
+function getBestTileToMoveTo(): Cell { 
 
-    if (enemyRangeMemo !== null) {
-        return enemyRangeMemo
-    }
-    //let eRange = maxEnemyRange + enemy.maxMP
+    //Check offensive only? For now?
+    //Should be computed once every round
     
+    //bfs agaaain i guess
+    //can cell.path to pathfind? Question mark
+    let movementRangeArray = rangeBfs(enemy.maxMP, enemy.cell, [])
+    let bestWeight = 0
+    let bestMovementRange = 999999
+    let bestCell = null
 
-    
-    //New problem: Need to BFS for every tile possible. Crying laughing emoji
-    //just bfs it
-    function enemyRangeBfs(range: number, currentCell: Cell, cellArray: Cell[]): Cell[] {
+    for (let tile of movementRangeArray) {
+        let moveDistance = me.cell.pathLength(tile)
+        let enemyDistance = Field.getDistance(tile, enemy.cell)
+        let currentWeight = 0
+        //later check if this is less than bestmovementrange if weight is tied
+        if (moveDistance > me.mp) {
+            continue
+        }
+        if (tile.lineOfSight(enemy.cell) && enemyDistance < Weapon.pistol.maxRange) {
+            currentWeight += 1
+        }
+        if (tile.onSameLine(enemy.cell) && enemyDistance < Weapon.machineGun.maxRange) {
+            currentWeight += 1 //refactor these to a weapon function Later
+        } 
+        if (currentWeight >= bestWeight && moveDistance < bestMovementRange) {
+            bestWeight = currentWeight
+            bestMovementRange = moveDistance
+            bestCell = tile
+        }
         
-        function enemyRangeBfsRecursive(range: number, currentCell: Cell) {
+        
+    }
+
+    return bestCell
+}
+
+function rangeBfs(range: number, currentCell: Cell, cellArray: Cell[]): Cell[] {
+        
+        function rangeBfsRecursive(range: number, currentCell: Cell) {
             //cellarray is the same as visited
             if (range === 0) {
                 return
@@ -64,19 +86,37 @@ function getEnemyRange(): Cell[] {
                     } else 
                     console.log(tempCell)
                     if (!cellArray.includes(tempCell) && !tempCell.obstacle) {
-                        enemyRangeBfsRecursive(range - 1, tempCell)
+                        rangeBfsRecursive(range - 1, tempCell)
                     }
                 }
             }
         }
-        enemyRangeBfsRecursive(range, currentCell)
+        rangeBfsRecursive(range, currentCell)
         return cellArray
     }
-    let movementRangeArray = enemyRangeBfs(enemy.maxMP, enemy.cell, [])
+
+let enemyRangeMemo: Cell [] = null
+function getEnemyRange(): Cell[] {
+    //get ranges for strongest weapon AND lineofsight
+    //future optimization: get ranges for all weapons separately, check if there's enough time to iterate through em all.
+    //or if there's a way to store in memory to better optimize
+    //also maybe refactor range to be added on top of current pos? or like store it somewhere so i dont have to recalc
+
+    if (enemyRangeMemo !== null) {
+        return enemyRangeMemo
+    }
+    //let eRange = maxEnemyRange + enemy.maxMP
+    
+
+    
+    //New problem: Need to BFS for every tile possible. Crying laughing emoji
+    //just bfs it
+    
+    let movementRangeArray = rangeBfs(enemy.maxMP, enemy.cell, [])
     let attackRangeArray = movementRangeArray.map(a => {return {...a}})
 
     for (let tile of movementRangeArray) {
-        attackRangeArray = enemyRangeBfs(maxEnemyRange, tile, attackRangeArray)
+        attackRangeArray = rangeBfs(maxEnemyRange, tile, attackRangeArray)
     }
     
 
@@ -189,6 +229,7 @@ function getStrongestAvailableWeapon(): Weapon {
 }
 
 let bandageUses = 1
+let bestOffensiveTile = getBestTileToMoveTo()
 
 while (me.mp > 0) {
     console.log("Looping")
@@ -213,12 +254,12 @@ while (me.mp > 0) {
     } else {
         console.log("Moving")
         let move_points = 0
-        if (me.distance(enemy.cell) - me.weapon.maxRange < me.mp && 
+        if (bestOffensiveTile != 1 && 
         me.tp > me.weapon.cost && me.life/me.maxLife > 0.5){
-            move_points = me.moveToward(enemy, 1)
+            move_points = me.moveTowardCells([bestOffensiveTile], 1)
         } else {
             if (!isInEnemyRange() && !getImmediateSafeTiles().includes(me.cell)) {
-                move_points = me.moveToward(enemy, 1)
+                move_points = me.moveTowardCells([bestOffensiveTile], 1)
             }
         } 
         
