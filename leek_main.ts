@@ -181,6 +181,10 @@ function getNearestPathToSafety(): Cell[] {
 
 
 function isInEnemyRange(): boolean {
+    console.log("--")
+    console.log(getEnemyRange())
+    console.log(me.cell)
+    console.log("---")
 
     if (getEnemyRange().includes(me.cell)){
         return true
@@ -259,7 +263,8 @@ while (me.mp > 0) {
         
         
         if (bestOffensiveTile != null && 
-        me.tp > me.weapon.cost && me.life/me.maxLife > 0.5){
+        me.tp > me.weapon.cost && me.life/me.maxLife > 0.5
+           ){
             move_points = me.moveTowardCells([bestOffensiveTile], 1)
         } else if (!isInEnemyRange() && !getImmediateSafeTiles().includes(me.cell)) {
                 console.log("Out of enemy range and moving further in")
